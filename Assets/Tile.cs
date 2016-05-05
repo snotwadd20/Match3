@@ -1,27 +1,41 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace Useless.Match3
 {
     public class Tile
     {
-        public int tileType;
-        public GameObject prefab;
-        public TileControl tileControl;
-        //public int shift;
+        public Match3 match3 = null;
+        private int _type = -1;
+        public GameObject art = null;
 
-        public Tile()
-        {
-            tileType = -1;
-            //shift = 0;
-        }//Constructor1
+        public Vector2 position         { get { return art.transform.position; } set { art.transform.position = value; } }
+        public Transform transform      { get { return art.transform; } }
+        public GameObject gameObject    { get { return art.gameObject; } }
 
-        public Tile(int tileType, GameObject prefab, TileControl tileControl)
+        public Tile(Match3 match3, int type)
         {
-            this.tileType = tileType;
-            this.prefab = prefab;
-            this.tileControl = tileControl;
-            //shift = 0;
-        }//Constructor2
+            this.match3 = match3;
+            this.type = type;
+            
+        }//Tile
+
+        public int type { get { return _type; } set { _type = value; ChangeArt(value); } }
+
+        public GameObject ChangeArt(int newType)
+        {
+            GameObject.Destroy(art);
+
+            if (newType != -1)
+            {
+                art = GameObject.Instantiate<GameObject>(match3.tilePrefabs[type]);
+            }//if
+            else
+            {
+                art = null;
+            }//else
+
+            return art;
+        }//ChangeArt
+
     }//Tile
 }//namespace

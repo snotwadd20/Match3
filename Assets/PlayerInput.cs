@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 namespace Useless.Match3
 {
@@ -9,12 +10,7 @@ namespace Useless.Match3
         private GameObject activeTile; //The first tile the player picks (to swap)
         private Vector3 activeTileOriginalScale;
 
-        private Match3Game gameManager;
-
-        void Awake()
-        {
-            gameManager = GetComponent<Match3Game>();
-        }//Awake
+        public Match3 gameManager;
 
         void Update()
         {
@@ -51,24 +47,13 @@ namespace Useless.Match3
                 if (Vector2.Distance(activeTile.transform.position, hit.collider.gameObject.transform.position) <= 1.25f)
                 {
 
-                    TileControl activeControl = activeTile.GetComponent<TileControl>();
-                    TileControl hitControl = hit.collider.gameObject.GetComponent<TileControl>();
-
-                    UPoint activeControlXY = activeControl.myXY;
-                    UPoint hitControlXY = hitControl.myXY;
-
-                    //if (gameManager.isLegalMove(activeControlXY, hitControlXY))
-                    {
-                        activeControl.Move(hitControlXY);
-                        hitControl.Move(activeControlXY);
-
-                        gameManager.Swap(hitControlXY, activeControlXY);
-                    }//if
+                    //MOVE TILE
+                    print("TODO: MOVE TILE");
                 }//if
             }//if 
             activeTile.transform.localScale = activeTileOriginalScale;
             activeTile = null;
+        }//AttemptMove  
 
-        }//AttemptMove   
     }//PlayerInput
 }//namespace
