@@ -33,29 +33,23 @@ namespace Useless.Match3
 
         IEnumerator Move(Tile tile1, Tile tile2)
         {
-            UPoint tile1Pos = tile1.position;
-            UPoint tile2Pos = tile2.position;
+            Vector2 tile1Pos = tile1.position;
+            Vector2 tile2Pos = tile2.position;
 
             //Do movement tweening on the tile arts
             //System.Action doSwaponCallback = () => { gameManager.GridSwap(tile1Pos, tile2Pos); };
 
             //Hashtable tile1Hash = iTween.Hash("position", tile2Pos, "time", 0.5f);
             //iTween.MoveTo(tile1.art, tile1Hash);
-            tile1.art.MoveTo(tile2Pos, 0.5f, 0);
+            //tile1.art.MoveTo(tile2Pos, 0.5f, 0);
             //Hashtable tile2Hash = iTween.Hash("position", tile1Pos, "time", 0.5f);
             //iTween.MoveTo(tile2.art, tile2Hash);
-            tile2.art.MoveTo(tile1Pos, 0.5f, 0);
+            //tile2.art.MoveTo(tile1Pos, 0.5f, 0);
 
             yield return new WaitForSeconds(0.5f);
 
-            //Move them back into place for now
-            tile1.position = tile1Pos;
-            tile2.position = tile2Pos;
-            tile1.art.SetActive(false);
-            tile2.art.SetActive(false);
-
             //Then swap the tiles, which will create new arts for each of the appropriate type
-            gameManager.GridSwap(tile1Pos, tile2Pos);
+            gameManager.GridSwap(tile1.gridPos, tile2.gridPos);
             yield return new WaitForEndOfFrame();
         }//move
 

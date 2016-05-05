@@ -14,10 +14,13 @@ namespace Useless.Match3
         public Transform transform      { get { return art.transform; } }
         public GameObject gameObject    { get { return art.gameObject; } }
 
-        public Tile(Match3 match3, int type)
+        public UPoint gridPos;
+
+        public Tile(Match3 match3, int type, UPoint gridPos)
         {
             this.match3 = match3;
             this.type = type;
+            this.gridPos = gridPos;
         }//Tile
 
         public int type { get { return _type; } set { _type = value; ChangeArt(value); } }
@@ -35,6 +38,7 @@ namespace Useless.Match3
                 art = GameObject.Instantiate<GameObject>(match3.tilePrefabs[type]);
                 TileReference tr = art.AddComponent<TileReference>();
                 tr.owner = this;
+                //art.transform.parent = match3.transform;
             }//if
             else
             {

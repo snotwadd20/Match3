@@ -46,7 +46,7 @@ namespace Useless.Match3
             {
                 for (int x = 0; x < gridWidth; x++)
                 {
-                    grid[x, y] = new Tile(this, Random.Range(0, tilePrefabs.Count));
+                    grid[x, y] = new Tile(this, Random.Range(0, tilePrefabs.Count), new UPoint(x,y));
                     grid[x, y].position = new Vector2(x, y);
                     grid[x, y].transform.parent = transform;
                 }//for
@@ -83,9 +83,11 @@ namespace Useless.Match3
 
             //Swap grid2 type with grid1, generating a new prefab
             grid[x2, y2].type = grid[x1, y1].type;
+            grid[x2, y2].transform.parent = transform;
 
             //Swap grid1 type with grid2
             grid[x1, y1].type = temp;
+            grid[x1, y1].transform.parent = transform;
         }//GridSwap
 
         // Update is called once per frame
