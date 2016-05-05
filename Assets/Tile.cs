@@ -4,7 +4,7 @@ namespace Useless.Match3
 {
     public class Tile
     {
-        public class TileReference : MonoBehaviour { public Tile owner; }
+        public class TileReference : MonoBehaviour { public Tile owner; void Update() { name = owner.gridPos.ToString(); } }
 
         public Match3 match3 = null;
         private int _type = -1;
