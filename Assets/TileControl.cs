@@ -17,7 +17,7 @@ namespace Useless.Match3
 
         //Physically move the piece and then report 
         //to gridManager when finished
-        IEnumerator Moving(UPoint xy)
+        public IEnumerator Moving(UPoint xy)
         {
             gameManager.ReportTileMovement();
 
@@ -38,8 +38,15 @@ namespace Useless.Match3
             }//while
 
             myXY = xy;
-            //gameObject.name = xy.x + "/" + xy.x + "(o)";
             gameManager.ReportTileStopped();
         }//Moving
+
+        void Update()
+        {
+            gameObject.name = myXY.ToString();
+        }
+
+
+
     }//TileControl
 }//namespace
