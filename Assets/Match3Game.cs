@@ -33,6 +33,9 @@ namespace Useless.Match3
 
         public int seed = -1;
 
+        //Number of tiles currently moving around
+        private int movingTiles = 0;
+
         // Array of moves
         private List<Move> allMoves;
 
@@ -85,7 +88,11 @@ namespace Useless.Match3
                     int randomtileType = Random.Range(0, tilePrefabs.Length);
 
                     GameObject go = Instantiate(tilePrefabs[randomtileType], new Vector2(x, y), Quaternion.identity) as GameObject;
-                    tileGrid[x, y] = new Tile(randomtileType, go);
+                    TileControl tc = go.GetComponent<TileControl>();
+                    tc.gameManager = this;
+                    tc.myXY = new UPoint(x, y);
+                    
+                    tileGrid[x, y] = new Tile(randomtileType, go, tc);
                     go.name = x + "/" + y;
                     go.transform.parent = transform;
                 }//for
@@ -140,23 +147,40 @@ namespace Useless.Match3
         }//ResolveMatches
 
         // Swap two tiles in the level
-        
+        public void Swap(UPoint pt1, UPoint pt2, bool swapSprites = false)
+        {
+            Swap(pt1.x, pt1.y, pt2.x, pt2.y, swapSprites);
+        }//Swap
         public void Swap(int x1, int y1, int x2, int y2, bool swapSprites = false)
         {
-            int typeswap = tileGrid[x1, y1].tileType;
+            Tile tile1 = tileGrid[x1, y1];
+            Tile tile2 = tileGrid[x2, y2];
+
+            int temp = tile2.tileType;
+            tile2.tileType = tile1.tileType;
+            tile1.tileType = temp;
+
+            /*int typeswap = tileGrid[x1, y1].tileType;
             tileGrid[x1, y1].tileType = tileGrid[x2, y2].tileType;
             tileGrid[x2, y2].tileType = typeswap;
 
-            if(swapSprites)
+            */
+
+
+            if (swapSprites)
             {
                 Vector2 pos1 = tileGrid[x1, y1].prefab.transform.position;
                 tileGrid[x1, y1].prefab.transform.position = tileGrid[x2, y2].prefab.transform.position;
                 tileGrid[x2, y2].prefab.transform.position = pos1;
 
-                string name1 = tileGrid[x1, y1].prefab.name;
-                tileGrid[x1, y1].prefab.name = tileGrid[x2, y2].prefab.name;
-                tileGrid[x2, y2].prefab.name = name1;
+                
             }//if
+
+
+            
+            
+
+
         }//Swap
 
         // Find available moves
@@ -268,6 +292,10 @@ namespace Useless.Match3
             {
                 for (int y = gridHeight - 1; y >= 0; y--)
                 {
+                    if (tileGrid[x, y].prefab.transform.position != new UPoint(x, y))
+                    {
+                        print("BAWLZ?");
+                    }
                     //Loop from top-left to bottom-right
                     //If we come across a tile, shift it down
                     if (tileGrid[x, y].tileType != -1)
@@ -283,6 +311,12 @@ namespace Useless.Match3
                     }//if
                     // Reset shift
                     tileGrid[x, y].shift = 0;
+
+                    if (tileGrid[x, y].prefab.transform.position != new UPoint(x, y))
+                    {
+                        print("HUH?");
+                    }
+
                 }//for
             }//for
         }//ShiftTiles
@@ -296,18 +330,30 @@ namespace Useless.Match3
                 {
                     if (tileGrid[x, y].tileType == -1)
                     {
+                        if(tileGrid[x, y].prefab.transform.position != new UPoint(x, y))
+                        {
+                            print("WHAT THE PROPER FUCK");
+                        }
+
+
                         int type = Random.Range(0, tilePrefabs.Length);
                         // Insert new random tile
                         GameObject oldPrefab = tileGrid[x, y].prefab;
-                        Vector2 prefabPos = oldPrefab.transform.position;
+                        tileGrid[x, y].prefab = Instantiate<GameObject>(tilePrefabs[type]);
+
+                        //Vector2 prefabPos = oldPrefab.transform.position;
 
                         tileGrid[x, y].shift = 0;
                         tileGrid[x, y].tileType = type;
-                        tileGrid[x, y].prefab = Instantiate<GameObject>(tilePrefabs[type]);
+                        TileControl tc = tileGrid[x, y].tileControl;
+                        tc.myXY = new UPoint(x, y);
+
                         tileGrid[x, y].prefab.name = x + "/" + y + "(n)";
                         tileGrid[x, y].prefab.transform.rotation = Quaternion.identity;
                         tileGrid[x, y].prefab.transform.position = new Vector2(x,y);
                         tileGrid[x, y].prefab.transform.parent = transform;
+
+                        Destroy(oldPrefab);
                     }//if
                 }//for
             }//for
@@ -468,5 +514,22 @@ namespace Useless.Match3
             }//for
             return str;
         }//ToString
+
+        public void ReportTileMovement()
+        {
+            movingTiles++;
+        }//ReportTileMovement
+
+        public void ReportTileStopped()
+        {
+            movingTiles--;
+
+            if (movingTiles == 0)
+            {
+            }//movingTiles
+        }//ReportTileStopped       
+
     }//Match3Game
+
+
 }//namespace
