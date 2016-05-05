@@ -4,6 +4,8 @@ namespace Useless.Match3
 {
     public class Tile
     {
+        public class TileReference : MonoBehaviour { public Tile owner; }
+
         public Match3 match3 = null;
         private int _type = -1;
         public GameObject art = null;
@@ -16,24 +18,31 @@ namespace Useless.Match3
         {
             this.match3 = match3;
             this.type = type;
-            
         }//Tile
 
         public int type { get { return _type; } set { _type = value; ChangeArt(value); } }
 
         public GameObject ChangeArt(int newType)
         {
+            Vector2 oldPos = Vector2.one * -1; ;
+            if (art != null)
+                oldPos = art.transform.position;
+
             GameObject.Destroy(art);
 
             if (newType != -1)
             {
                 art = GameObject.Instantiate<GameObject>(match3.tilePrefabs[type]);
+                TileReference tr = art.AddComponent<TileReference>();
+                tr.owner = this;
             }//if
             else
             {
                 art = null;
             }//else
 
+            if (art != null)
+                art.transform.position = oldPos;
             return art;
         }//ChangeArt
 
