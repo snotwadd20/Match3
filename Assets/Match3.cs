@@ -83,7 +83,7 @@ namespace Useless.Match3
 
             //Swap grid2 type with grid1, generating a new prefab
             grid[x2, y2].type = grid[x1, y1].type;
-            grid[x2, y2].transform.parent = transform;
+            //grid[x2, y2].transform.parent = transform;
 
             //Swap grid1 type with grid2
             grid[x1, y1].type = temp;

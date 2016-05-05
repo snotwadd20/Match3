@@ -38,7 +38,7 @@ namespace Useless.Match3
                 art = GameObject.Instantiate<GameObject>(match3.tilePrefabs[type]);
                 TileReference tr = art.AddComponent<TileReference>();
                 tr.owner = this;
-                //art.transform.parent = match3.transform;
+                art.transform.parent = match3.transform;
             }//if
             else
             {
