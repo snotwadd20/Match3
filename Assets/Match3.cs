@@ -21,6 +21,9 @@ namespace Useless.Match3
         //Temporary list for storing detected matches
         private List<Match> allMatches = null;  // { column, row, length, horizontal }
 
+        public delegate IEnumerator Coroutine();
+
+
         //------------------------------------------------------------------
         // Use this for initialization
         void Awake()
@@ -40,16 +43,18 @@ namespace Useless.Match3
 
             //Fill the grid up with random stuff
             InitializeGrid();
-            FindAllMatches();
-            PrintAllMatches();
+            //FindAllMatches();
+            //PrintAllMatches();
         }//Awake
-        
+
+        private int tilesFalling = 0;
         //------------------------------------------------------------------
         public IEnumerator DoTileGravity()
         {
             float fallTime = 0.75f;
+            tilesFalling = 0;
 
-            for (int y = 1; y < gridHeight; y++) //Lowest row never falls
+            for (int y = 1; y < gridHeight; y++) 
             {
                 for (int x = 0; x < gridWidth; x++)
                 {
@@ -57,7 +62,6 @@ namespace Useless.Match3
                     if (grid[x, y].type != -1)
                     {
                         bool done = false;
-                        int _failsafe = 0;
 
                         int fallingDistance = 0;
                         while (!done && y - 1 - fallingDistance >= 0)
@@ -67,25 +71,50 @@ namespace Useless.Match3
                                 fallingDistance++;
                             else
                                 done = true;
-
-                            _failsafe++;
-                            if (_failsafe >= 100)
-                                done = true;
+                            
                         }//while
-                        //Vector2 startPos = grid[x, y].position;
-                        //Vector2 endPos = grid[x, y - fallingDistance].position;
-                        //grid[x, y].art.MoveTo(endPos, fallTime, 0);
 
-                        //yield return new WaitForSeconds(fallTime);
-                        //grid[x, y].position = startPos;
+                        if (fallingDistance > 0)
+                            tilesFalling++;
 
-                        GridSwap(x, y, x, y - fallingDistance);
+                        //Do this so that tiles above this one know to fall, but don't move the art yet
+                        TweakSwapTypes(x, y, x, y-fallingDistance);
+                        StartCoroutine(Fall(x, y, fallingDistance, fallTime));
                     }//if
                 }//for
             }//for
+
+            while(tilesFalling > 0)
+            {
+                yield return new WaitForEndOfFrame();
+            }//while
+
             yield return new WaitForEndOfFrame();
         }//DoTileGravity
+        
+        //------------------------------------------------------------------
+        private IEnumerator Fall(int x, int y, int fallingDistance, float fallTime)
+        {
+            if (fallingDistance > 0)
+            {
+                Vector2 startPos = grid[x, y].position;
+                Vector2 endPos = grid[x, y - fallingDistance].position;
 
+                grid[x, y].art.MoveTo(endPos, fallTime, 0);
+
+                yield return new WaitForSeconds(fallTime);
+
+                //Set the art back where it was, so the new asset will spawn in the right spot
+                grid[x, y].position = startPos;
+                grid[x, y].art.SetActive(false);
+
+                TweakSwapTypes(x, y, x, y - fallingDistance); //Undo the swap tweak
+
+                GridSwap(x, y, x, y - fallingDistance);
+                tilesFalling--;
+            }//if
+            yield return new WaitForEndOfFrame();
+        }
         //------------------------------------------------------------------
         // Find matches in the level
         private void FindAllMatches()
@@ -283,6 +312,10 @@ namespace Useless.Match3
         //Remove all matches from the board and fill them with tiles 
         public void ResolveAllMatches()
         {
+            StartCoroutine(DoMatchResolution());
+        }
+        private IEnumerator DoMatchResolution()
+        {
             // Check for matches (fills out the matches list)
             FindAllMatches();
 
@@ -293,14 +326,16 @@ namespace Useless.Match3
                 RemoveMatches();
 
                 // Shift tiles
-                ShiftTiles();
-
+                
+                yield return StartCoroutine(DoTileGravity());
+                
                 //Replace shifted tiles
                 SpawnMissingTiles();
 
                 // Check if there are matches left
                 FindAllMatches();
             }//while
+            yield return new WaitForEndOfFrame();
         }//ResolveAllMatches
 
         //------------------------------------------------------------------
