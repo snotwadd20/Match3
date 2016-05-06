@@ -23,6 +23,7 @@ namespace Useless.Match3
 
         public delegate IEnumerator Coroutine();
 
+        private int tilesFalling = 0;
 
         //------------------------------------------------------------------
         // Use this for initialization
@@ -47,7 +48,34 @@ namespace Useless.Match3
             //PrintAllMatches();
         }//Awake
 
-        private int tilesFalling = 0;
+        //------------------------------------------------------------------
+        private IEnumerator DoMatchResolution()
+        {
+            // Check for matches (fills out the matches list)
+            FindAllMatches();
+
+            // While there are matches left
+            while (allMatches.Count > 0)
+            {
+                while (allMatches.Count > 0)
+                {
+                    // Remove matches
+                    RemoveMatches();
+
+                    // Shift tiles
+                    yield return StartCoroutine(DoTileGravity());
+                    FindAllMatches();
+                }//while
+
+                //Replace shifted tiles
+                yield return StartCoroutine(SpawnMissingTiles());
+
+                // Check if there are matches left
+                FindAllMatches();
+            }//while
+            yield return new WaitForEndOfFrame();
+        }//DoMatchResolution
+
         //------------------------------------------------------------------
         public IEnumerator DoTileGravity()
         {
@@ -79,7 +107,7 @@ namespace Useless.Match3
 
                         //Do this so that tiles above this one know to fall, but don't move the art yet
                         TweakSwapTypes(x, y, x, y-fallingDistance);
-                        StartCoroutine(Fall(x, y, fallingDistance, fallTime));
+                        StartCoroutine(FallAfterMatch(x, y, fallingDistance, fallTime));
                     }//if
                 }//for
             }//for
@@ -91,16 +119,28 @@ namespace Useless.Match3
 
             yield return new WaitForEndOfFrame();
         }//DoTileGravity
-        
+
         //------------------------------------------------------------------
-        private IEnumerator Fall(int x, int y, int fallingDistance, float fallTime)
+        private IEnumerator Fall(GameObject art, UPoint start, UPoint end, float fallTime)
+        {
+            art.transform.position = start;
+            art.MoveTo(end, fallTime, 0, EaseType.easeInOutQuad);
+            yield return new WaitForSeconds(fallTime);
+            tilesFalling--;
+
+            yield return new WaitForEndOfFrame();
+        }//Fall
+
+
+        //------------------------------------------------------------------
+        private IEnumerator FallAfterMatch(int x, int y, int fallingDistance, float fallTime)
         {
             if (fallingDistance > 0)
             {
                 Vector2 startPos = grid[x, y].position;
                 Vector2 endPos = grid[x, y - fallingDistance].position;
 
-                grid[x, y].art.MoveTo(endPos, fallTime, 0);
+                grid[x, y].art.MoveTo(endPos, fallTime, 0.3f);
 
                 yield return new WaitForSeconds(fallTime);
 
@@ -115,6 +155,7 @@ namespace Useless.Match3
             }//if
             yield return new WaitForEndOfFrame();
         }
+
         //------------------------------------------------------------------
         // Find matches in the level
         private void FindAllMatches()
@@ -314,30 +355,7 @@ namespace Useless.Match3
         {
             StartCoroutine(DoMatchResolution());
         }
-        private IEnumerator DoMatchResolution()
-        {
-            // Check for matches (fills out the matches list)
-            FindAllMatches();
-
-            // While there are matches left
-            while (allMatches.Count > 0)
-            {
-                // Remove matches
-                RemoveMatches();
-
-                // Shift tiles
-                
-                yield return StartCoroutine(DoTileGravity());
-                
-                //Replace shifted tiles
-                SpawnMissingTiles();
-
-                // Check if there are matches left
-                FindAllMatches();
-            }//while
-            yield return new WaitForEndOfFrame();
-        }//ResolveAllMatches
-
+        
         //------------------------------------------------------------------
         public void RemoveMatches()
         {
@@ -375,8 +393,10 @@ namespace Useless.Match3
         }//ShiftTiles
 
         //------------------------------------------------------------------
-        public void SpawnMissingTiles()
+        public IEnumerator SpawnMissingTiles()
         {
+            //List<Move> spawnedTiles = new List<Move>();
+            float fallTime = 0.5f;
             //Now fill in all the empty ones
             for (int x = 0; x < gridWidth; x++)
             {
@@ -384,10 +404,23 @@ namespace Useless.Match3
                 {
                     if (grid[x, y].type == -1)
                     {
+                        //Create the new tile art first (should be at destination spot
                         grid[x, y].type = Random.Range(0, tilePrefabs.Count);
+                        Vector2 destination = grid[x, y].position;
+                        Vector2 start = destination + ((gridHeight+1+y) * Vector2.up);//Start above the map
+                        tilesFalling++;
+                        StartCoroutine(Fall(grid[x,y].art, start, destination, fallTime));
                     }//if
                 }//for
             }//for
+
+            while (tilesFalling > 0)
+            {
+                yield return new WaitForEndOfFrame();
+            }//while
+            
+
+            yield return new WaitForEndOfFrame();
         }//SpawnMissingTiles
 
         //------------------------------------------------------------------
@@ -414,7 +447,7 @@ namespace Useless.Match3
             }//foreach
             
             return false;
-        }//TileHasLegalMove
+        }//IsLegalMove
 
         //------------------------------------------------------------------
         public int MatchesInDirection(int type, UPoint start, UPoint direction)
