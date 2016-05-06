@@ -16,8 +16,11 @@ namespace Useless.Match3
 
         public UPoint gridPos;
 
+        public Vector2 _cachedArtPos;
+
         public Tile(Match3 match3, int type, UPoint gridPos)
         {
+            _cachedArtPos = gridPos;
             this.match3 = match3;
             this.type = type;
             this.gridPos = gridPos;
@@ -27,12 +30,12 @@ namespace Useless.Match3
 
         public GameObject ChangeArt(int newType)
         {
-            Vector2 oldPos = Vector2.one * -1; ;
-            if (art != null)
-                oldPos = art.transform.position;
-
-            GameObject.Destroy(art);
-
+            if (art)
+            {
+                _cachedArtPos = art.transform.position;
+                GameObject.Destroy(art);
+            }//if
+            
             if (newType != -1)
             {
                 art = GameObject.Instantiate<GameObject>(match3.tilePrefabs[type]);
@@ -45,10 +48,16 @@ namespace Useless.Match3
                 art = null;
             }//else
 
-            if (art != null)
-                art.transform.position = oldPos;
+            if(art)
+                art.transform.position = _cachedArtPos;
+
             return art;
         }//ChangeArt
 
+        //Change the type without changing the art
+        public void TweakType(int newType)
+        {
+            _type = newType;
+        }//TweakType
     }//Tile
 }//namespace

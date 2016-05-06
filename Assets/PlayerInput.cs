@@ -18,13 +18,24 @@ namespace Useless.Match3
             {
                 if (Vector2.Distance(activeTile.transform.position, hit.collider.gameObject.transform.position) <= 1.25f)
                 {
-                    //Scale it back down before we move it
-                    activeTile.transform.localScale = activeTileOriginalScale;
-
                     Tile tile1 = activeTile.GetComponent<Tile.TileReference>().owner;
                     Tile tile2 = hit.collider.gameObject.GetComponent<Tile.TileReference>().owner;
 
-                    StartCoroutine(Move(tile1, tile2));
+                    //print(gameManager.MatchesInDirection(tile1.type, tile1.gridPos, tile2.gridPos - tile1.gridPos));
+                    Match3.Move move = new Match3.Move(tile1.gridPos, tile2.gridPos);
+                    //Check if it's a legal move
+                    if (gameManager.IsLegalMove(move))
+                    {
+                        //Scale it back down before we move it
+                        activeTile.transform.localScale = activeTileOriginalScale;
+
+                        StartCoroutine(Move(tile1, tile2));
+                    }//if
+                    else
+                    {
+                        print("Not a legal move: " + move.ToString());
+                    }//else
+                        
                 }//if
             }//if 
             activeTile.transform.localScale = activeTileOriginalScale;
@@ -49,6 +60,7 @@ namespace Useless.Match3
 
             //Then swap the tiles, which will create new arts for each of the appropriate type
             gameManager.GridSwap(tile1.gridPos, tile2.gridPos);
+            //gameManager.RemoveMatches();
             yield return new WaitForEndOfFrame();
         }//move
 
