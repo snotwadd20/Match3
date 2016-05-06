@@ -60,7 +60,7 @@ namespace Useless.Match3
 
             //Then swap the tiles, which will create new arts for each of the appropriate type
             gameManager.GridSwap(tile1.gridPos, tile2.gridPos);
-            //gameManager.RemoveMatches();
+            gameManager.ResolveAllMatches();
             yield return new WaitForEndOfFrame();
         }//move
 

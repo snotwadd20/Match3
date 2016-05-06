@@ -45,11 +45,10 @@ namespace Useless.Match3
             }//if
             else
             {
-                art = null;
+                art = new GameObject("Art Placeholder");
             }//else
 
-            if(art)
-                art.transform.position = _cachedArtPos;
+            art.transform.position = _cachedArtPos;
 
             return art;
         }//ChangeArt

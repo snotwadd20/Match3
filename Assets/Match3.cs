@@ -43,6 +43,48 @@ namespace Useless.Match3
             FindAllMatches();
             PrintAllMatches();
         }//Awake
+        
+        //------------------------------------------------------------------
+        public IEnumerator DoTileGravity()
+        {
+            float fallTime = 0.75f;
+
+            for (int y = 1; y < gridHeight; y++) //Lowest row never falls
+            {
+                for (int x = 0; x < gridWidth; x++)
+                {
+                    //Loop from bottom to top
+                    if (grid[x, y].type != -1)
+                    {
+                        bool done = false;
+                        int _failsafe = 0;
+
+                        int fallingDistance = 0;
+                        while (!done && y - 1 - fallingDistance >= 0)
+                        {
+                            //If this tile has an empty tile under it, shift down until it no longer does                            
+                            if (grid[x, y - 1 - fallingDistance].type == -1)
+                                fallingDistance++;
+                            else
+                                done = true;
+
+                            _failsafe++;
+                            if (_failsafe >= 100)
+                                done = true;
+                        }//while
+                        //Vector2 startPos = grid[x, y].position;
+                        //Vector2 endPos = grid[x, y - fallingDistance].position;
+                        //grid[x, y].art.MoveTo(endPos, fallTime, 0);
+
+                        //yield return new WaitForSeconds(fallTime);
+                        //grid[x, y].position = startPos;
+
+                        GridSwap(x, y, x, y - fallingDistance);
+                    }//if
+                }//for
+            }//for
+            yield return new WaitForEndOfFrame();
+        }//DoTileGravity
 
         //------------------------------------------------------------------
         // Find matches in the level
@@ -239,7 +281,7 @@ namespace Useless.Match3
 
         //------------------------------------------------------------------
         //Remove all matches from the board and fill them with tiles 
-        private void ResolveAllMatches()
+        public void ResolveAllMatches()
         {
             // Check for matches (fills out the matches list)
             FindAllMatches();
@@ -251,7 +293,7 @@ namespace Useless.Match3
                 RemoveMatches();
 
                 // Shift tiles
-                //ShiftTiles();
+                ShiftTiles();
 
                 //Replace shifted tiles
                 SpawnMissingTiles();
@@ -290,6 +332,12 @@ namespace Useless.Match3
                 }//for
             }//for
         }//RemoveMatches
+
+        //------------------------------------------------------------------
+        public void ShiftTiles()
+        {
+            StartCoroutine(DoTileGravity());
+        }//ShiftTiles
 
         //------------------------------------------------------------------
         public void SpawnMissingTiles()
@@ -411,11 +459,16 @@ namespace Useless.Match3
                 RemoveMatches();
             }//if
 
-            if(Input.GetKeyDown(KeyCode.Alpha4))
+            if (Input.GetKeyDown(KeyCode.Alpha4))
             {
-                SpawnMissingTiles();
+                ShiftTiles();
             }//if
 
+            if (Input.GetKeyDown(KeyCode.Alpha5))
+            {
+                SpawnMissingTiles();
+            }//if            
+             
         }//Update
 
         //---------------------------------------
