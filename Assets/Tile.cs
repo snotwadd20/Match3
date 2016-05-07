@@ -21,6 +21,7 @@ namespace Useless.Match3
         public int type { get { return _type; } set { _type = value; ChangeArt(value); } }
 
         //------------------------------------------------------------
+        // TILE SUB-CLASS
         //------------------------------------------------------------
         public Tile(Match3 match3, int type, UPoint gridPos)
         {
@@ -30,7 +31,6 @@ namespace Useless.Match3
             this.gridPos = gridPos;
         }//Tile
      
-        //------------------------------------------------------------
         //------------------------------------------------------------
         public GameObject ChangeArt(int newType)
         {
