@@ -11,7 +11,8 @@ namespace Useless.Match3
         private Vector3 activeTileOriginalScale;
 
         public Match3 gameManager;
-        
+
+        //------------------------------------------------------------
         void AttemptMove(RaycastHit2D hit)
         {
             if (hit && hit.collider.gameObject != activeTile)
@@ -42,6 +43,7 @@ namespace Useless.Match3
             activeTile = null;
         }//AttemptMove
 
+        //------------------------------------------------------------
         IEnumerator Move(Tile tile1, Tile tile2)
         {
             Vector2 tile1Pos = tile1.position;
@@ -64,6 +66,7 @@ namespace Useless.Match3
             yield return new WaitForEndOfFrame();
         }//move
 
+        //------------------------------------------------------------
         void SelectTile(RaycastHit2D hit)
         {
             if (hit)
@@ -76,6 +79,7 @@ namespace Useless.Match3
             }//if
         }//SelectTile
 
+        //------------------------------------------------------------
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.Mouse0))

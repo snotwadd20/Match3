@@ -7,7 +7,8 @@ namespace Useless.Match3
     public class DisplayScore : MonoBehaviour
     {
         public Text textObject = null;
-         
+
+        //------------------------------------------------------------
         // Use this for initialization
         void Start()
         {
@@ -24,6 +25,7 @@ namespace Useless.Match3
             }//if
         }//Start
 
+        //------------------------------------------------------------
         // Update is called once per frame
         void Update()
         {

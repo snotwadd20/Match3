@@ -18,6 +18,10 @@ namespace Useless.Match3
 
         public Vector2 _cachedArtPos;
 
+        public int type { get { return _type; } set { _type = value; ChangeArt(value); } }
+
+        //------------------------------------------------------------
+        //------------------------------------------------------------
         public Tile(Match3 match3, int type, UPoint gridPos)
         {
             _cachedArtPos = gridPos;
@@ -25,9 +29,9 @@ namespace Useless.Match3
             this.type = type;
             this.gridPos = gridPos;
         }//Tile
-
-        public int type { get { return _type; } set { _type = value; ChangeArt(value); } }
-
+     
+        //------------------------------------------------------------
+        //------------------------------------------------------------
         public GameObject ChangeArt(int newType)
         {
             if (art)
@@ -53,6 +57,7 @@ namespace Useless.Match3
             return art;
         }//ChangeArt
 
+        //------------------------------------------------------------
         //Change the type without changing the art
         public void TweakType(int newType)
         {
