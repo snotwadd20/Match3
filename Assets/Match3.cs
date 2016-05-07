@@ -48,9 +48,16 @@ namespace Useless.Match3
             //PrintAllMatches();
         }//Awake
 
+        private int _queuedResolutions = 0;
+
         //------------------------------------------------------------------
         private IEnumerator DoMatchResolution()
         {
+            //Make sure only one of these is running at a time. Queue up extra ones to run later
+            if(_queuedResolutions > 0)
+                yield return new WaitUntil(() => _queuedResolutions <= 0);
+
+            _queuedResolutions++;
             // Check for matches (fills out the matches list)
             FindAllMatches();
 
@@ -72,7 +79,10 @@ namespace Useless.Match3
 
                 // Check if there are matches left
                 FindAllMatches();
+                if (allMatches.Count > 0)
+                    ScoreKeeper.IncrementMultiplier();
             }//while
+            _queuedResolutions--;
             yield return new WaitForEndOfFrame();
         }//DoMatchResolution
 
@@ -201,15 +211,8 @@ namespace Useless.Match3
                     {
                         if (matchLength >= 3)
                         {
-                            // Found a horizontal Match
-                            //column: i + 1 - matchlength, 
-                            //row: j, 
-                            //length: matchlength, 
-                            //horizontal: true });
-
                             Match theMatch = new Match(x + 1 - matchLength, y, matchLength, true);
                             allMatches.Add(theMatch);
-                            //print("Match at:" + theMatch.x + "," + theMatch.y + " -> L: " + theMatch.length + " isHorz: " + theMatch.isHorizontal);
                         }//if
 
                         matchLength = 1;
@@ -359,6 +362,22 @@ namespace Useless.Match3
         //------------------------------------------------------------------
         public void RemoveMatches()
         {
+            int numTilesMatched = 0;
+            for(int i=0; i < allMatches.Count; i++)
+            {
+                Match match = allMatches[i];
+                numTilesMatched += match.length;
+            }//for
+
+            if(numTilesMatched > 3)
+            {
+                int scoreToAdd = Mathf.RoundToInt((numTilesMatched - 3) * (1.2f * numTilesMatched - 4) * 30);
+                scoreToAdd += 10 - (scoreToAdd % 10); //round up to ten
+                ScoreKeeper.AddPoints(scoreToAdd);
+                print(numTilesMatched + " match: " + scoreToAdd + " points");
+            }//if
+
+
             //DeleteAllMatchedTiles();
             for (int i = 0; i < allMatches.Count; i++)
             {
@@ -367,12 +386,14 @@ namespace Useless.Match3
                 int roffset = 0;
                 int nx = 0;
                 int ny = 0;
+                
                 for (int j = 0; j < match.length; j++)
                 {
                     nx = match.x + coffset;
                     ny = match.y + roffset;
 
                     grid[nx, ny].type = -1;
+                    ScoreKeeper.AddPoints(10); //Each block is worth 10 points
                     
                     if (match.isHorizontal)
                     {
