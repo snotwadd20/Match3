@@ -72,6 +72,13 @@ namespace Useless.Match3
                     // Shift tiles
                     yield return StartCoroutine(DoTileGravity());
                     FindAllMatches();
+                    if (allMatches.Count > 0)
+                    {
+                        ScoreKeeper.IncrementMultiplier();
+                        int scoreToAdd = Mathf.RoundToInt(ScoreKeeper.globalMultiplier * (1.2f * (ScoreKeeper.globalMultiplier - 1)) * 30);
+                        scoreToAdd += 10 - (scoreToAdd % 10); //round up to ten
+                        ScoreKeeper.AddPoints(scoreToAdd);
+                    }//if
                 }//while
 
                 //Replace shifted tiles
@@ -80,7 +87,12 @@ namespace Useless.Match3
                 // Check if there are matches left
                 FindAllMatches();
                 if (allMatches.Count > 0)
+                {
                     ScoreKeeper.IncrementMultiplier();
+                    int scoreToAdd = Mathf.RoundToInt(ScoreKeeper.globalMultiplier * (1.2f * (ScoreKeeper.globalMultiplier - 1)) * 50);
+                    scoreToAdd += 10 - (scoreToAdd % 10); //round up to ten
+                    ScoreKeeper.AddPoints(scoreToAdd);
+                }//if
             }//while
             _queuedResolutions--;
             yield return new WaitForEndOfFrame();
