@@ -19,7 +19,7 @@ namespace Useless.Match3
         //------------------------------------------------------------
         public static void AddPoints(int pointsToAdd)
         {
-            _score += pointsToAdd * _globalMultiplier;
+            _score += PlusBonuses(pointsToAdd);
         }//AddPoints
 
         //------------------------------------------------------------
@@ -27,8 +27,13 @@ namespace Useless.Match3
         {
             _globalMultiplier++;
             _globalMultiplierTimer = self.multiplierTimerLength; //reset the timer
-            print("MULT= " + _globalMultiplier + "x");
+            //print("MULT= " + _globalMultiplier + "x");
         }//IncrementMultiplier
+
+        public static int PlusBonuses(int number)
+        {
+            return number * _globalMultiplier;
+        }
 
         //------------------------------------------------------------
         public static void SetMultiplier(int newMult)
@@ -57,26 +62,10 @@ namespace Useless.Match3
         }//Update
 
         //------------------------------------------------------------
-        //------------------------------------------------------------
         //SINGLETON
         //------------------------------------------------------------
-        //------------------------------------------------------------
         private static ScoreKeeper _self = null;
-
-        public static ScoreKeeper self
-        {
-            get
-            {
-                if (_self == null)
-                    InitSingleton();
-
-                return _self;
-            }//get
-        }//self
-
-        private static void InitSingleton()
-        {
-            _self = new GameObject("ScoreKeeper").AddComponent<ScoreKeeper>();
-        }//InitSingleton
+        public static ScoreKeeper self { get { if (_self == null) InitSingleton(); return _self; } }
+        private static void InitSingleton() { _self = new GameObject("ScoreKeeper").AddComponent<ScoreKeeper>(); }
     }//ScoreKeeper
 }//namespace

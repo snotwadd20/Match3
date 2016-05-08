@@ -5,3 +5,7 @@ Library/
 MatchThree.CSharp.csproj
 MatchThree.sln
 Assets/Pixelplacement/iTween/iTweenExtensions.cs
+Assets/FloatingCombatText/
+Assets/FloatingCombatText.meta
+MatchThree.CSharp.Editor.csproj
+MatchThree.CSharp.Plugins.csproj
